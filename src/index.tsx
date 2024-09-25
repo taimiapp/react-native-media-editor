@@ -22,4 +22,6 @@ export function multiply(a: number, b: number): Promise<number> {
   return MediaEditor.multiply(a, b);
 }
 
-export { hooks };
+export const useVideoEditorState = hooks.useVideoEditorState;
+
+export default { useVideoEditorState };
