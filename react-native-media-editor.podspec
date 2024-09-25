@@ -36,6 +36,7 @@ Pod::Spec.new do |s|
       s.dependency "RCTRequired"
       s.dependency "RCTTypeSafety"
       s.dependency "ReactCommon/turbomodule/core"
+      s.dependency "ffmpeg-kit-ios-full", "6.0"
     end
   end
 end
