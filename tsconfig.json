@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "paths": {
-      "react-native-media-editor": ["./src/index"]
+      "react-native-media-editor": ["./src/index.tsx"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
