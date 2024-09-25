@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "./src",
     "paths": {
       "react-native-media-editor": ["./src/index"]
     },
@@ -25,6 +25,6 @@
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true,
-    "allowJs": false
+    "declaration": true
   }
 }
