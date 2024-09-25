@@ -180,5 +180,8 @@
     "type": "module-legacy",
     "languages": "kotlin-swift",
     "version": "0.41.1"
+  },
+  "dependencies": {
+    "react-native-reanimated": "^3.15.3"
   }
 }
