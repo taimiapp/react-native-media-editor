@@ -1,10 +1,11 @@
 {
   "name": "@taimi/react-native-media-editor",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "Set of tools for React Native that can assist in building assorted photo/video editors.",
   "source": "./src/index.tsx",
-  "main": "./lib/commonjs/index",
-  "module": "./lib/module/index",
+  "main": "./lib/commonjs/index.js",
+  "types": "./lib/typescript/module/src/index.d.ts",
+  "module": "./lib/module/index.js",
   "exports": {
     ".": {
       "import": {
