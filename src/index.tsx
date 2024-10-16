@@ -1,5 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import hooks from '../src/hooks';
+import hooks from './hooks';
 
 const LINKING_ERROR =
   `The package 'react-native-media-editor' doesn't seem to be linked. Make sure: \n\n` +
