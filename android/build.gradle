@@ -1,6 +1,6 @@
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["MediaEditor_kotlinVersion"]
+  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["VideoEditor_kotlinVersion"]
 
   repositories {
     google()
@@ -31,11 +31,11 @@ if (isNewArchitectureEnabled()) {
 }
 
 def getExtOrDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["MediaEditor_" + name]
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["VideoEditor_" + name]
 }
 
 def getExtOrIntegerDefault(name) {
-  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["MediaEditor_" + name]).toInteger()
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["VideoEditor_" + name]).toInteger()
 }
 
 def supportsNamespace() {
@@ -49,7 +49,6 @@ def supportsNamespace() {
 
 android {
   if (supportsNamespace()) {
-    namespace "com.mediaeditor"
     namespace "com.videoeditor"
 
     sourceSets {
