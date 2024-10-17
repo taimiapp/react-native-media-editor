@@ -1,4 +1,4 @@
-package com.takimi.android.customModules.videoEditor
+package com.videoeditor
 
 import android.graphics.Bitmap
 import android.media.*
