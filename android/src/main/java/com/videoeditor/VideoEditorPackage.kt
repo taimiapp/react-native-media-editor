@@ -1,4 +1,4 @@
-package com.takimi.android.customModules.videoEditor
+package com.videoeditor
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
