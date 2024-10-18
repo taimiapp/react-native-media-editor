@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import hooks from './hooks';
+import components from './components';
 
 const LINKING_ERROR =
   `The package 'react-native-media-editor' doesn't seem to be linked. Make sure: \n\n` +
@@ -22,6 +23,4 @@ export function multiply(a: number, b: number): Promise<number> {
   return MediaEditor.multiply(a, b);
 }
 
-export const useVideoEditorState = hooks.useVideoEditorState;
-
-export default { useVideoEditorState };
+export default { hooks, components };
