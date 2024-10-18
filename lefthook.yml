@@ -17,9 +17,3 @@ pre-commit:
         else
           echo "No type-checkable files detected"
         fi
-
-#commit-msg:
-#  parallel: true
-#  commands:
-#    commitlint:
-#      run: npx commitlint --edit
