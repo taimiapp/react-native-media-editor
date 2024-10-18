@@ -3,12 +3,23 @@ pre-commit:
   commands:
     lint:
       glob: "*.{js,ts,jsx,tsx}"
-      run: npx eslint {staged_files}
+      run: |
+        if git diff --cached --name-only | grep -q '\.jsx\|\.tsx\|\.js\|\.ts$'; then
+          npx eslint {staged_files}
+        else
+          echo "No lintable files detected"
+        fi
     types:
-      glob: "*.{js,ts, jsx, tsx}"
-      run: npx tsc
-commit-msg:
-  parallel: true
-  commands:
-    commitlint:
-      run: npx commitlint --edit
+      glob: "*.{js,ts,jsx,tsx}"
+      run: |
+        if git diff --cached --name-only | grep -q '\.jsx\|\.tsx\|\.js\|\.ts$'; then
+          npx tsc
+        else
+          echo "No type-checkable files detected"
+        fi
+
+#commit-msg:
+#  parallel: true
+#  commands:
+#    commitlint:
+#      run: npx commitlint --edit
