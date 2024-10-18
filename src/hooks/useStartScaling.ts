@@ -1,5 +1,5 @@
-import type { TUseStartScalingParams } from '../interfaces/interface';
 import { useCallback, useEffect } from 'react';
+import type { TUseStartScalingParams } from '../interfaces/interface';
 
 export const useStartScaling = ({
   containerData,

@@ -182,6 +182,7 @@
     "version": "0.41.1"
   },
   "dependencies": {
+    "react-native-gesture-handler": "2.17.1",
     "react-native-reanimated": "3.14.0"
   }
 }

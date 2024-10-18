@@ -1,5 +1,5 @@
-import { useSharedValue } from 'react-native-reanimated';
 import { useMemo } from 'react';
+import { useSharedValue } from 'react-native-reanimated';
 
 export const useTranslateValues = () => {
   const translateX = useSharedValue(0);

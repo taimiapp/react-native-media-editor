@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
-import { restrictPosition } from '../utils/worklets';
 import type { TUseRecalculateCropPosition } from '../interfaces/interface';
+import { restrictPosition } from '../utils/worklets';
 
 export const useRecalculateCropPosition = ({
   imageData,
