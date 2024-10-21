@@ -3,7 +3,8 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { View } from 'react-native';
 import { forwardRef, useImperativeHandle } from 'react';
-import type { ForwardedRef } from 'react';
+import type { ForwardedRef, RefAttributes, ComponentType } from 'react';
+import type { DefaultStyle } from 'react-native-reanimated/lib/typescript/hook/commonTypes';
 
 import type { LayoutRectangle } from 'react-native/Libraries/Types/CoreEventTypes';
 import type { TCropResult } from '../../interfaces/interface';
@@ -18,7 +19,6 @@ import { usePan } from '../../hooks/usePan';
 // import CropOverlay from './components/CropOverlay';
 
 import styles from './styles';
-import type { DefaultStyle } from 'react-native-reanimated/lib/typescript/hook/commonTypes';
 
 type TMediaCropperProps = {
   children: (
@@ -36,7 +36,7 @@ export type TCropperRef = {
 const MediaCropper = (
   { children, onCropAreaChange, renderCropOverlay }: TMediaCropperProps,
   ref: ForwardedRef<TCropperRef>
-) => {
+): JSX.Element => {
   const {
     nativeImgSize,
     setImgSize,
@@ -149,4 +149,6 @@ const MediaCropper = (
   );
 };
 
-export const MediaCropperWithForwardRef = forwardRef(MediaCropper);
+export default forwardRef(MediaCropper) as ComponentType<
+  TMediaCropperProps & RefAttributes<TCropperRef>
+>;

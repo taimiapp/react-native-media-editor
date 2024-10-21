@@ -1,3 +1,3 @@
-import { MediaCropperWithForwardRef } from './MediaCropper';
+import MediaCropper from './MediaCropper';
 
-export { MediaCropperWithForwardRef };
+export default MediaCropper;

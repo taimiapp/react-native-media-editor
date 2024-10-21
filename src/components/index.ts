@@ -1,3 +1,3 @@
-import * as MediaCropper from './MediaCropper';
+import MediaCropper from './MediaCropper';
 
 export default { MediaCropper };
