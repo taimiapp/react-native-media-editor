@@ -19,6 +19,7 @@ import { useGenerateCroppedMedia } from '../../hooks/useGenerateCroppedMedia';
 import { usePan } from '../../hooks/usePan';
 
 import styles from './styles';
+import CropOverlay from '../CropOverlay';
 
 const MediaCropper = (
   { children, onCropAreaChange, renderCropOverlay }: TMediaCropperProps,
@@ -105,9 +106,12 @@ const MediaCropper = (
   );
 
   const renderOverlay = () => {
-    if (typeof renderCropOverlay !== 'function') {
-      return null;
+    let content = <CropOverlay />;
+
+    if (typeof renderCropOverlay === 'function') {
+      content = renderCropOverlay();
     }
+
     return (
       <View style={styles.containerOverlay}>
         <View
@@ -118,7 +122,7 @@ const MediaCropper = (
             },
           ]}
         >
-          {renderCropOverlay()}
+          {content}
         </View>
       </View>
     );
