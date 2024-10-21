@@ -1,4 +1,5 @@
 import type { SharedValue } from 'react-native-reanimated';
+import type { LayoutRectangle } from 'react-native/Libraries/Types/CoreEventTypes';
 
 export type TPoint = {
   x: number;
@@ -11,11 +12,6 @@ export type TCropResult = {
   croppedAreaPercentages: TSize & TPoint;
   croppedAreaPixels: TSize & TPoint;
   direction?: 'x' | 'y';
-};
-
-// @TODO add proper ref type when cropper is unified and moved into the lib
-export type TCropperRef = {
-  getCroppedArea: () => TCropResult;
 };
 
 export type TUseVideoEditorStateProps = Readonly<{
@@ -77,4 +73,17 @@ export type TUseStartScalingParams = {
   containerData: TSize;
   nativeImgSize: TSize;
   setMediaSize: TSetSize;
+};
+
+export type TMediaCropperProps = {
+  children: (
+    onGetNativeDimensions: (params: { width: number; height: number }) => void,
+    onLayout: (layout: LayoutRectangle) => void
+  ) => JSX.Element;
+  renderCropOverlay?: () => JSX.Element;
+  onCropAreaChange?: (params: TCropResult) => void;
+};
+
+export type TCropperRef = {
+  getCroppedArea: () => TCropResult;
 };

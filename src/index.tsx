@@ -1,29 +1,8 @@
-import { NativeModules, Platform } from 'react-native';
 import hooks from './hooks';
 import components from './components';
-
-const LINKING_ERROR =
-  `The package 'react-native-media-editor' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo Go\n';
-
-const MediaEditor = NativeModules.MediaEditor
-  ? NativeModules.MediaEditor
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
-
-export function multiply(a: number, b: number): Promise<number> {
-  return MediaEditor.multiply(a, b);
-}
+import types from './interfaces';
 
 export const useVideoEditorState = hooks.useVideoEditorState;
 export const MediaCropper = components.MediaCropper;
 
-export default { useVideoEditorState, MediaCropper };
+export default { useVideoEditorState, MediaCropper, ...types };

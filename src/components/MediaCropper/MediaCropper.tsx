@@ -6,8 +6,10 @@ import { forwardRef, useImperativeHandle } from 'react';
 import type { ForwardedRef, RefAttributes, ComponentType } from 'react';
 import type { DefaultStyle } from 'react-native-reanimated/lib/typescript/hook/commonTypes';
 
-import type { LayoutRectangle } from 'react-native/Libraries/Types/CoreEventTypes';
-import type { TCropResult } from '../../interfaces/interface';
+import type {
+  TCropperRef,
+  TMediaCropperProps,
+} from '../../interfaces/interface';
 import { useStateValues } from '../../hooks/useStateValues';
 import { useTranslateValues } from '../../hooks/useTranslateValues';
 import { useRecalculateCropPosition } from '../../hooks/useRecalculateCropPosition';
@@ -16,22 +18,7 @@ import { useInitialScale } from '../../hooks/useInitialScale';
 import { useGenerateCroppedMedia } from '../../hooks/useGenerateCroppedMedia';
 import { usePan } from '../../hooks/usePan';
 
-// import CropOverlay from './components/CropOverlay';
-
 import styles from './styles';
-
-type TMediaCropperProps = {
-  children: (
-    onGetNativeDimensions: (params: { width: number; height: number }) => void,
-    onLayout: (layout: LayoutRectangle) => void
-  ) => JSX.Element;
-  renderCropOverlay?: () => JSX.Element;
-  onCropAreaChange?: (params: TCropResult) => void;
-};
-
-export type TCropperRef = {
-  getCroppedArea: () => TCropResult;
-};
 
 const MediaCropper = (
   { children, onCropAreaChange, renderCropOverlay }: TMediaCropperProps,
