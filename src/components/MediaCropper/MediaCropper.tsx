@@ -148,4 +148,5 @@ const MediaCropper = (
     </GestureDetector>
   );
 };
-export default forwardRef(MediaCropper);
+
+export const MediaCropperWithForwardRef = forwardRef(MediaCropper);
