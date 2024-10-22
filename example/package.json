@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "react": "18.3.1",
-    "react-native": "0.75.2"
+    "react-native": "0.73.9"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -23,6 +23,7 @@
     "@react-native/typescript-config": "0.75.2",
     "@rnx-kit/metro-config": "^2.0.0",
     "react-native-builder-bob": "^0.30.2",
+    "react-native-media-editor": "https://artieherasymov:glpat-xYCvya7V1BRHjwy2gxcC@gitlab.tops1.io/artieherasymov/react-native-media-editor.git",
     "react-native-test-app": "^3.10.5"
   },
   "engines": {
