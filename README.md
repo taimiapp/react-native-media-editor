@@ -5,18 +5,10 @@ Set of tools for React Native that can assist in building assorted photo/video e
 ## Installation
 
 ```sh
+#JS
 npm install react-native-media-editor
-```
-
-## Usage
-
-
-```js
-import { multiply } from 'react-native-media-editor';
-
-// ...
-
-const result = await multiply(3, 7);
+#iOS
+cd ios && pod install
 ```
 
 
