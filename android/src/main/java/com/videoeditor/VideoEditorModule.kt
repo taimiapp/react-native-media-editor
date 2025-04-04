@@ -1,7 +1,8 @@
-package com.videoeditor
+package com.takimi.android.customModules.videoEditor
 
 import android.graphics.Bitmap
 import android.media.*
+import android.os.Build
 import com.facebook.react.bridge.*
 import android.os.Environment
 import android.util.Log
@@ -27,36 +28,43 @@ class VideoEditorModule(reactContext: ReactApplicationContext) : ReactContextBas
             currentSession?.cancel()
 
             val formatSourcePath = sourcePath.replace("file://", "")
-            val trimmedVideoPath = generateOutputPath("trimmedVideo")
             val outputPath = generateOutputPath("boomerangVideo")
 
-            val cropX = if (cropPosition.hasKey("x")) cropPosition.getInt("x") else 0;
-            val cropY = if (cropPosition.hasKey("y")) cropPosition.getInt("y") else 0;
-            val cropWidth = if (cropPosition.hasKey("width")) cropPosition.getInt("width") else 0;
-            val cropHeight = if (cropPosition.hasKey("height")) cropPosition.getInt("height") else 0;
-            var cropCommand = if (cropHeight != 0 && cropWidth != 0) "-vf crop=$cropWidth:$cropHeight:$cropX:$cropY" else ""
+            val cropX = if (cropPosition.hasKey("x")) cropPosition.getInt("x") else 0
+            val cropY = if (cropPosition.hasKey("y")) cropPosition.getInt("y") else 0
+            val cropWidth = if (cropPosition.hasKey("width")) cropPosition.getInt("width") else 0
+            val cropHeight = if (cropPosition.hasKey("height")) cropPosition.getInt("height") else 0
 
-            val trimCommand = "-ss $startTime -i \"$formatSourcePath\" -t 00:00:0\"$duration\".000 $cropCommand ${if (cropCommand.length > 0) "-c:a copy -an" else "-c copy -an" } \"$trimmedVideoPath\""
-            val boomerangCommand = "-i \"$trimmedVideoPath\" -filter_complex \"[0:v]reverse[r];[0][r]concat=n=2:v=1:a=0\" $outputPath"
+            val cropFilter = if (cropHeight != 0 && cropWidth != 0) "crop=$cropWidth:$cropHeight:$cropX:$cropY," else ""
 
+            val isAndroid11orLower = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R)
+            val scaleFilter = if (isAndroid11orLower) {
+                "scale='if(gt(iw,ih),720,-2):if(gt(iw,ih),-2,720):force_original_aspect_ratio=decrease:force_divisible_by=2'"
+            } else {
+                "scale='if(gt(iw,ih),1920,-2):if(gt(iw,ih),-2,1920):force_original_aspect_ratio=decrease:force_divisible_by=16'"
+            }
+            val videoCodec = if (isAndroid11orLower) "mpeg4" else "h264"
+            val vtag = if (videoCodec == "mpeg4") "-vtag mp4v" else ""
 
-            currentSession =FFmpegKit.executeAsync(trimCommand) { trimSession ->
-                val trimReturnCode = trimSession.getReturnCode()
+            val combinedCommand = "-y -ss $startTime -t 00:00:0$duration.000 -i \"$formatSourcePath\" -filter_complex \"[0:v]${cropFilter}$scaleFilter,split[v1][v2];[v2]reverse[r];[v1][r]concat=n=2:v=1:a=0\" -r 30 -g 30 -an -c:v $videoCodec $vtag -pix_fmt yuv420p -b:v 4000k -maxrate 4000k -bufsize 8000k -f mp4  \"$outputPath\""
 
-                if (ReturnCode.isSuccess(trimReturnCode)) {
-                    currentSession =FFmpegKit.executeAsync(boomerangCommand) { boomerangSession ->
-                        val boomerangReturnCode = boomerangSession.getReturnCode()
+            currentSession = FFmpegKit.executeAsync(combinedCommand) { session ->
+                val returnCode = session.getReturnCode()
 
-                        if (ReturnCode.isSuccess(boomerangReturnCode)) {
-                            promise.resolve(outputPath)
-                        } else {
-                            val message = "Error creating boomerang video: ${boomerangSession.getFailStackTrace()}"
-                            promise.reject("Error", message)
-                        }
+                when {
+                    ReturnCode.isSuccess(returnCode) -> {
+                        promise.resolve(outputPath)
                     }
-                } else {
-                    val message = "Error trimming video: ${trimSession.getFailStackTrace()}"
-                    promise.reject("Error", message)
+
+                    ReturnCode.isCancel(returnCode) -> {
+
+                        promise.resolve(null)
+                    }
+
+                    else -> {
+                        val message = "Error creating boomerang video: ${session.getAllLogsAsString()}"
+                        promise.reject("Error", message)
+                    }
                 }
             }
         } catch (e: Exception) {

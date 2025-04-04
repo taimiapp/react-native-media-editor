@@ -41,67 +41,41 @@ class VideoEditor: NSObject, RCTBridgeModule {
   }
 
   @objc func makeBoomerang(_ filePath: String, startTime: String, cropPosition: NSDictionary, duration: Int, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-      currentSession?.cancel()
+    currentSession?.cancel()
 
+    let cropX = cropPosition["x"] as? Int ?? 0
+    let cropY = cropPosition["y"] as? Int ?? 0
+    let cropWidth = cropPosition["width"] as? Int ?? 0
+    let cropHeight = cropPosition["height"] as? Int ?? 0
 
-
-      let cropX = cropPosition["x"] as? Int ?? 0;
-      let cropY = cropPosition["y"] as? Int ?? 0;
-      let cropWidth = cropPosition["width"] as? Int;
-      let cropHeight = cropPosition["height"] as? Int;
-      let cgPoint = CGPoint(x: cropX, y: cropY)
-      var croppingRect: CGRect?;
-      // TODO add check for out of bounds
-      if (cropWidth != nil && cropHeight != nil) {
-        let cgSize = CGSize(width: cropWidth ?? 0, height: cropHeight ?? 0)
-        croppingRect = CGRect(origin: cgPoint, size: cgSize)
-      }
-
-      var cropCommand: String?
-      if let unwrappedRect = croppingRect {
-        cropCommand = "-vf crop=\(unwrappedRect.width):\(unwrappedRect.height):\(unwrappedRect.origin.x):\(unwrappedRect.origin.y)"
-      }
+    let cropFilter = (cropWidth > 0 && cropHeight > 0) ?
+        "crop=\(cropWidth):\(cropHeight):\(cropX):\(cropY)," : ""
 
     let url = URL(fileURLWithPath: filePath)
     let isProRes = isProResVideo(filePath)
     let fileExtension = isProRes ? "mov" : url.pathExtension
+    let outputPath = self.createOutputPath(filename: "boomerangVideo.\(fileExtension)")
+    let bitRate = self.getBitRateOfVideo(filePath: filePath) ?? 5000 * 1000
 
-      let trimmedVideoPath = self.createOutputPath(filename: "trimmedVideo.\(fileExtension)")
-    let trimCommand = "-ss \(startTime) -i \(filePath) -t 00:00:0\(duration).000 \(cropCommand != nil ? cropCommand! : "") \(cropCommand != nil ? "-c:a" : "-c") copy \(trimmedVideoPath)"
-    print(trimCommand)
+    let combinedCommand = """
+    -ss \(startTime) -t 00:00:0\(duration).000 -i \(filePath) \
+    -filter_complex "[0:v]\(cropFilter)split[v1][v2];[v2]reverse[r];[v1][r]concat" \
+    -an -c:v h264_videotoolbox -b:v \(bitRate) -crf 18 -preset fast \(outputPath)
+    """
 
-      currentSession = FFmpegKit.executeAsync(trimCommand) { [weak self] session in
-          guard let self = self else { return }
-          let returnCode = session?.getReturnCode()
+    currentSession = FFmpegKit.executeAsync(combinedCommand) { session in
+        let returnCode = session?.getReturnCode()
 
-          if ReturnCode.isSuccess(returnCode) {
-              let outputPath = self.createOutputPath(filename: "boomerangVideo.\(fileExtension)")
-              let bitRate = self.getBitRateOfVideo(filePath: filePath) ?? 5000 * 1000
-
-            let boomerangCommand = "-i \(trimmedVideoPath) -filter_complex \"[0:v]reverse[r];[0][r]concat=n=2:v=1:a=0\" -an -c:v h264_videotoolbox -b:v \(bitRate) \(outputPath)"
-
-            self.currentSession = FFmpegKit.executeAsync(boomerangCommand) { boomerangSession in
-                  let boomerangReturnCode = boomerangSession?.getReturnCode()
-
-                  if ReturnCode.isSuccess(boomerangReturnCode) {
-                      resolve(outputPath)
-                  } else {
-                      if ReturnCode.isCancel(boomerangReturnCode) {
-                          reject("Error", "Operation cancelled", nil)
-                      } else {
-                          let message = "Error creating boomerang video"
-                          reject("Error", message, nil)
-                      }
-                  }
-              }
-          } else {
-              if ReturnCode.isCancel(returnCode) {
-                  reject("Error", "Operation cancelled", nil)
-              } else {
-                  let message = "Error trimming video"
-                  reject("Error", message, nil)
-              }
-          }
+        if ReturnCode.isSuccess(returnCode) {
+            resolve(outputPath)
+        } else {
+            if ReturnCode.isCancel(returnCode) {
+                reject("Error", "Operation cancelled", nil)
+            } else {
+                let message = "Error creating boomerang video"
+                reject("Error", message, nil)
+            }
+        }
       }
   }
 

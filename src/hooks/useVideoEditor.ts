@@ -20,12 +20,12 @@ export const DEFAULT_BOOMERANG_DURATION = 1;
 export const useVideoEditorState = ({
   filePath,
   duration,
-  boomerangDurationMs,
   cropperRef,
+  boomerangDurationMs,
 }: TUseVideoEditorStateProps) => {
   const [thumbnail, setThumbnail] = useState([]);
   const [uri, setUri] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const currentTime = useSharedValue(0);
   const currentURI = useSharedValue(filePath);
@@ -49,7 +49,7 @@ export const useVideoEditorState = ({
         const cropPosition =
           cropPos?.croppedAreaPixels ||
           cropperRef.current?.getCroppedArea()?.croppedAreaPixels;
-        const position = { ...cropPosition } as any; // @TODO remove sany
+        const position = { ...cropPosition };
         let result;
         if (position.width) {
           result = await VideoEditor.createThumbnails(
@@ -89,7 +89,7 @@ export const useVideoEditorState = ({
         const startTime =
           duration <= boomerangDuration ? '0.0' : formatTime(currentTime.value);
         const cropPosition = cropPos?.croppedAreaPixels;
-        const position = { ...cropPosition } as any; // @TODO remove any;
+        const position = { ...cropPosition };
         let boomerangVideoPath;
         if (position.width) {
           boomerangVideoPath = await NativeModules.VideoEditor.makeBoomerang(
@@ -117,8 +117,7 @@ export const useVideoEditorState = ({
 
         return boomerangVideoPath;
       } catch (error) {
-        // TODO handle error
-        return '';
+        setLoading(false);
       }
     },
     [
@@ -133,11 +132,19 @@ export const useVideoEditorState = ({
 
   useEffect(() => {
     createBoomerang();
+
+    return () => {
+      // VideoEditor.clearVideoCache();
+    };
   }, [createBoomerang]);
 
   const onContentSizeChange = (contentWidth: number) => {
     scrollContentWidth.current = contentWidth;
   };
+
+  useEffect(() => {
+    createThumbnail();
+  }, [createThumbnail]);
 
   const onScroll = ({
     nativeEvent,
@@ -190,7 +197,7 @@ export const useVideoEditorState = ({
   };
 
   const onMomentumScrollEnd = useCallback(() => {
-    if (isDragging.current) {
+    if (isDragging.current && isIOS) {
       return;
     }
 
