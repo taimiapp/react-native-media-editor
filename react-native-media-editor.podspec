@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => min_ios_version_supported }
-  s.source       = { :git => "https://gitlab.tops1.io/artieherasymov/react-native-media-editor.git", :tag => "#{s.version}" }
+  s.source       = { :path => "customPods/ffmpeg-kit-ios-full" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
