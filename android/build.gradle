@@ -95,6 +95,9 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation 'com.arthenica:ffmpeg-kit-full:6.0-2'
+  configurations.implementation {
+    exclude group: "com.arthenica", module: "ffmpeg-kit-https"
+  }
+  implementation "com.local.ffmpeg-kit:full_binary:6.0-2"
 }
 

@@ -141,66 +141,103 @@ class VideoEditor: NSObject, RCTBridgeModule {
     return CMTimeGetSeconds(duration)
   }
 
-  @objc func createThumbnails(_ filePath: String, durationSec: Int, cropPosition: NSDictionary, duration: Int, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-      let url = URL(fileURLWithPath: filePath)
+  @objc func createThumbnails(_ filePath: String,
+                              durationSec: Int,
+                              cropPosition: NSDictionary,
+                              duration: Int,
+                              resolver resolve: @escaping RCTPromiseResolveBlock,
+                              rejecter reject: @escaping RCTPromiseRejectBlock) {
+      var workingFilePath = filePath
+      var didCopy = false
+
+      if filePath.hasPrefix("/var/mobile/Media/DCIM") {
+          let sourceURL = URL(fileURLWithPath: filePath)
+          let tempDirectory = NSTemporaryDirectory()
+          let tempFilename = sourceURL.lastPathComponent
+          let tempFilePath = (tempDirectory as NSString).appendingPathComponent("\(UUID().uuidString)_\(tempFilename)")
+          let tempFileURL = URL(fileURLWithPath: tempFilePath)
+
+          do {
+              try FileManager.default.copyItem(at: sourceURL, to: tempFileURL)
+              print("The file has been successfully copied to the sandbox (temporary directory): \(tempFileURL)")
+              workingFilePath = tempFilePath
+              didCopy = true
+          } catch {
+              print("Error copying file from DCIM: \(error.localizedDescription)")
+              reject("copy_error", error.localizedDescription, error)
+              return
+          }
+      } else {
+          print("The file is not in DCIM, use the original path: \(filePath)")
+      }
+
+      let url = URL(fileURLWithPath: workingFilePath)
       let asset = AVURLAsset(url: url)
       let imageGenerator = AVAssetImageGenerator(asset: asset)
       imageGenerator.appliesPreferredTrackTransform = true
-
-
       imageGenerator.maximumSize = CGSize(width: 180, height: 180)
 
-      var thumbnailPaths: [String] = []
+      let cropX = cropPosition["x"] as? Int ?? 0
+      let cropY = cropPosition["y"] as? Int ?? 0
+      let cropWidth = cropPosition["width"] as? Int
+      let cropHeight = cropPosition["height"] as? Int
+
+      var croppingRect: CGRect?
+      if let w = cropWidth, let h = cropHeight {
+          croppingRect = CGRect(x: cropX, y: cropY, width: w, height: h)
+      }
+
+      var intervals = [Double]()
+      if durationSec <= duration {
+          intervals = [0, Double(durationSec)]
+      } else {
+          let interval: Double = Double(duration) / 2.0
+          var currentTime: Double = 0
+          while currentTime < Double(durationSec) {
+              intervals.append(currentTime)
+              currentTime += interval
+          }
+          intervals.append(Double(durationSec))
+      }
+
+      var thumbnailPaths = [String]()
       let dispatchGroup = DispatchGroup()
 
-      let cropX = cropPosition["x"] as? Int ?? 0;
-      let cropY = cropPosition["y"] as? Int ?? 0;
-      let cropWidth = cropPosition["width"] as? Int;
-      let cropHeight = cropPosition["height"] as? Int;
-      let cgPoint = CGPoint(x: cropX, y:cropY)
-      var croppingRect: CGRect?;
-      // TODO add check for out of bounds
-      if (cropWidth != nil && cropHeight != nil) {
-        let cgSize = CGSize(width: cropWidth ?? 0, height: cropHeight ?? 0)
-        croppingRect = CGRect(origin: cgPoint, size: cgSize)
-      }
-
-    var intervals = [Double]()
-      if durationSec <= duration {
-        intervals = [0, Double(durationSec)]
-      } else {
-        let interval: Double = Double(duration) / 2
-        var currentTime: Double = 0
-        while currentTime < Double(durationSec) {
-          intervals.append(currentTime)
-          currentTime += interval
-        }
-        intervals.append(Double(durationSec))
-      }
-    for timeForFrame in intervals {
-        dispatchGroup.enter()
-        let cmTime = CMTime(seconds: timeForFrame, preferredTimescale: asset.duration.timescale)
-        imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: cmTime)]) { _, image, _, _, error in
-          defer { dispatchGroup.leave() }
-          if let image = image, error == nil {
-            let outputPath = self.createOutputPath(filename: "thumbnail_\(timeForFrame).jpg")
-            var cgImage: CGImage = image
-            if let rectCrop = croppingRect {
-              cgImage = image.cropping(to: rectCrop) ?? image
-            }
-
-            let uiImage = UIImage(cgImage: cgImage)
-            if let imageData = uiImage.jpegData(compressionQuality: 0.2) {
-              try? imageData.write(to: URL(fileURLWithPath: outputPath))
-              thumbnailPaths.append(outputPath)
-            }
-          } else {
-            print("Error generating thumbnail: \(error?.localizedDescription ?? "Unknown error")")
+      for timeForFrame in intervals {
+          dispatchGroup.enter()
+          let cmTime = CMTime(seconds: timeForFrame, preferredTimescale: asset.duration.timescale)
+          imageGenerator.generateCGImagesAsynchronously(forTimes: [NSValue(time: cmTime)]) { _, image, _, _, error in
+              defer { dispatchGroup.leave() }
+              if let image = image, error == nil {
+                  var finalCGImage = image
+                  if let rect = croppingRect, let cropped = image.cropping(to: rect) {
+                      finalCGImage = cropped
+                  }
+                  let uiImage = UIImage(cgImage: finalCGImage)
+                  if let imageData = uiImage.jpegData(compressionQuality: 0.2) {
+                      let outputPath = self.createOutputPath(filename: "thumbnail_\(timeForFrame).jpg")
+                      do {
+                          try imageData.write(to: URL(fileURLWithPath: outputPath))
+                          thumbnailPaths.append(outputPath)
+                      } catch {
+                          print("Error writing thumbnail: \(error.localizedDescription)")
+                      }
+                  }
+              } else {
+                  print("Error generating thumbnail at \(timeForFrame)s: \(error?.localizedDescription ?? "Unknown error")")
+              }
           }
-        }
       }
 
       dispatchGroup.notify(queue: .main) {
+          if didCopy {
+              do {
+                  try FileManager.default.removeItem(atPath: workingFilePath)
+                  print("Temporary copy successfully deleted: \(workingFilePath)")
+              } catch {
+                  print("Failed to delete temporary copy: \(error.localizedDescription)")
+              }
+          }
           resolve(thumbnailPaths)
       }
   }
