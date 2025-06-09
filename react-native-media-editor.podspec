@@ -19,8 +19,8 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
 
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++11',
-    'CLANG_CXX_LIBRARY' => 'libc++',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
+    'CLANG_CXX_LIBRARY' => 'libc++'
     'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/c++/v1'
   }
 
