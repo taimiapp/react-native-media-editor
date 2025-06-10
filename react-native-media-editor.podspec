@@ -16,11 +16,9 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
-  s.dependency "RCT-Folly (= 2024.10.14.00)"
 
-  s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-    'CLANG_CXX_LIBRARY' => 'libc++',
+  s.xcconfig = {
+      "OTHER_CFLAGS" => "$(inherited) " + compilation_metadata_generation_flag
   }
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
