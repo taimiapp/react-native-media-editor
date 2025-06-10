@@ -23,8 +23,7 @@ s.pod_target_xcconfig = {
   s.source_files = "ios/**", "cpp/**/*.{cpp,c}" #
 
     s.preserve_paths = [
-      "cpp/**/*.h",
-      "ios/**/*.h"
+      "cpp/**/*.h"
     ]
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
