@@ -13,9 +13,23 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :path => "customPods/ffmpeg-kit-ios-full" }
 
-  s.source_files = "ios/**/*.{h,m,mm,swift}"
+s.pod_target_xcconfig = {
+    "DEFINES_MODULE" => "YES",
+    "SWIFT_COMPILATION_MODE" => "wholemodule",
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
+  }
 
-  s.dependency "React-Core"
+  s.source_files = "ios/**/*.{mm,swift}", "cpp/**/*.{cpp,c}" #
+
+    s.preserve_paths = [
+      "cpp/**/*.h",
+      "ios/**/*.h"
+    ]
+
+    s.dependency "React"
+    s.dependency "React-Core"
+    s.dependency "React-callinvoker"
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.
