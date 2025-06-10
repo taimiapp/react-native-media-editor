@@ -20,7 +20,7 @@ s.pod_target_xcconfig = {
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
   }
 
-  s.source_files = "ios/**/*.{mm,swift}", "cpp/**/*.{cpp,c}" #
+  s.source_files = "ios/**", "cpp/**/*.{cpp,c}" #
 
     s.preserve_paths = [
       "cpp/**/*.h",
