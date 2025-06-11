@@ -15,8 +15,9 @@ export const usePan = ({
 }: TUsePan) => {
   const ctxX = useSharedValue(0);
   const ctxY = useSharedValue(0);
-  const direction: SharedValue<'x' | 'y' | undefined> =
-    useSharedValue(undefined);
+  const direction: SharedValue<'x' | 'y' | undefined> = useSharedValue<
+    'x' | 'y' | undefined
+  >(undefined);
 
   const proceedEnd = useCallback(() => {
     const cropArea = getCroppedArea();
