@@ -187,6 +187,6 @@
   "dependencies": {
     "@react-native-masked-view/masked-view": "0.2.9",
     "react-native-gesture-handler": "2.17.1",
-    "react-native-reanimated": "3.14.0"
+    "react-native-reanimated": "3.16.7"
   }
 }
