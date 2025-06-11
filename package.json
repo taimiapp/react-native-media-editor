@@ -3,20 +3,8 @@
   "version": "0.1.4",
   "description": "Set of tools for React Native that can assist in building assorted photo/video editors.",
   "source": "./src/index.tsx",
-  "main": "./lib/module/index",
+  "main": "./lib/module/index.js",
   "types": "./lib/typescript/module/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./lib/typescript/module/index.d.ts",
-        "default": "./lib/module/index.js"
-      },
-      "require": {
-        "types": "./lib/typescript/commonjs/index.d.ts",
-        "default": "./lib/commonjs/index.js"
-      }
-    }
-  },
   "files": [
     "src",
     "lib",
