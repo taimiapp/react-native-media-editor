@@ -1,4 +1,5 @@
 import Foundation
+import ffmpegkit
 import AVFoundation
 import Photos
 
@@ -39,44 +40,56 @@ class VideoEditor: NSObject, RCTBridgeModule {
       return false
   }
 
-  @objc func makeBoomerang(_ filePath: String, startTime: String, cropPosition: NSDictionary, duration: Int, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-    currentSession?.cancel()
+  @objc func makeBoomerang(
+      _ filePathPure: String,
+      startTime: String,
+      cropPosition: NSDictionary,
+      duration: Int,
+      resolver resolve: @escaping RCTPromiseResolveBlock,
+      rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+      currentSession?.cancel()
 
-    let cropX = cropPosition["x"] as? Int ?? 0
-    let cropY = cropPosition["y"] as? Int ?? 0
-    let cropWidth = cropPosition["width"] as? Int ?? 0
-    let cropHeight = cropPosition["height"] as? Int ?? 0
+      let filePath    = filePathPure.removingPercentEncoding ?? filePathPure
+      let cropX       = cropPosition["x"]      as? Int ?? 0
+      let cropY       = cropPosition["y"]      as? Int ?? 0
+      let cropW       = cropPosition["width"]  as? Int ?? 0
+      let cropH       = cropPosition["height"] as? Int ?? 0
+      let cropFilter  = (cropW > 0 && cropH > 0)
+          ? "crop=\(cropW):\(cropH):\(cropX):\(cropY),"
+          : ""
 
-    let cropFilter = (cropWidth > 0 && cropHeight > 0) ?
-        "crop=\(cropWidth):\(cropHeight):\(cropX):\(cropY)," : ""
+    let bitRate     = getBitRateOfVideo(filePath: filePath) ?? 5_000_000
+      let outputPath  = createOutputPath(filename: "boomerang.mp4")
+      let durString   = String(format: "00:00:%02d.000", duration)
 
-    let url = URL(fileURLWithPath: filePath)
-    let isProRes = isProResVideo(filePath)
-    let fileExtension = isProRes ? "mov" : url.pathExtension
-    let outputPath = self.createOutputPath(filename: "boomerangVideo.\(fileExtension)")
-    let bitRate = self.getBitRateOfVideo(filePath: filePath) ?? 5000 * 1000
+      let cmd = """
+      -ss \(startTime) -t \(durString) \
+      -hwaccel videotoolbox -hwaccel_output_format videotoolbox \
+      -i "\(filePath)" \
+      -filter_complex_threads 1 -filter_threads 1 \
+      -filter_complex "\
+        [0:v]\
+        \(cropFilter)\
+        scale=1280:-2,format=yuv420p,fifo,split[v1][v2];\
+        [v2]reverse[r];\
+        [v1][r]concat[out]" \
+      -map "[out]" \
+      -an \
+      -c:v h264_videotoolbox -b:v \(bitRate) -crf 18 -preset fast \
+      -movflags +faststart \
+      "\(outputPath)"
+      """
 
-    let combinedCommand = """
-    -ss \(startTime) -t 00:00:0\(duration).000 -i \(filePath) \
-    -filter_complex "[0:v]\(cropFilter)split[v1][v2];[v2]reverse[r];[v1][r]concat" \
-    -an -c:v h264_videotoolbox -b:v \(bitRate) -crf 18 -preset fast \(outputPath)
-    """
-
-    currentSession = FFmpegKit.executeAsync(combinedCommand) { session in
-        let returnCode = session?.getReturnCode()
-
-        if ReturnCode.isSuccess(returnCode) {
-            resolve(outputPath)
-        } else {
-            if ReturnCode.isCancel(returnCode) {
-                reject("Error", "Operation cancelled", nil)
-            } else {
-                let message = "Error creating boomerang video"
-                reject("Error", message, nil)
-            }
-        }
+      currentSession = FFmpegKit.executeAsync(cmd) { session in
+          if ReturnCode.isSuccess(session?.getReturnCode()) {
+              resolve(outputPath)
+          } else {
+              reject("boomerang_error", "Не удалось создать бумеранг", nil)
+          }
       }
   }
+
 
   @objc func clearVideoCache(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
       let fileManager = FileManager.default
@@ -140,12 +153,13 @@ class VideoEditor: NSObject, RCTBridgeModule {
     return CMTimeGetSeconds(duration)
   }
 
-  @objc func createThumbnails(_ filePath: String,
+  @objc func createThumbnails(_ filePathPure: String,
                               durationSec: Int,
                               cropPosition: NSDictionary,
                               duration: Int,
                               resolver resolve: @escaping RCTPromiseResolveBlock,
                               rejecter reject: @escaping RCTPromiseRejectBlock) {
+      let filePath = (filePathPure.removingPercentEncoding != nil) ? filePathPure.removingPercentEncoding! : filePathPure
       var workingFilePath = filePath
       var didCopy = false
 
