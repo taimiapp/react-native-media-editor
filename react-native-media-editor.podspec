@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.source       = { :path => "." }
+  s.platforms    = { :ios => "12.1" }
 
 
 s.pod_target_xcconfig = {
