@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => min_ios_version_supported }
-  s.source       = { :path => "customPods/ffmpeg-kit-ios-full" }
+  s.source       = { :path => "." }
+
 
 s.pod_target_xcconfig = {
     "DEFINES_MODULE" => "YES",
@@ -21,7 +21,11 @@ s.pod_target_xcconfig = {
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
   }
 
-  s.source_files = "ios/**", "cpp/**/*.{cpp,c}" #
+  s.source_files = "ios/*.{h,m,swift}", "cpp/**/*.{cpp,c}"
+  s.vendored_frameworks = 'ios/customPods/ffmpeg-kit-ios-full/ffmpeg-kit-ios-full/*.xcframework'
+
+  s.frameworks = "AVFoundation", "VideoToolbox", "CoreMedia"
+  s.libraries = "z", "bz2", "iconv", "c++"
 
     s.preserve_paths = [
       "cpp/**/*.h"
