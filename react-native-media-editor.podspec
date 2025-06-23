@@ -23,8 +23,6 @@ s.pod_target_xcconfig = {
 
   s.source_files = "ios/*.{h,m,swift}", "cpp/**/*.{cpp,c}"
   s.vendored_frameworks = 'ios/customPods/ffmpeg-kit-ios-full/ffmpeg-kit-ios-full/*.xcframework'
-
-  s.frameworks = "AVFoundation", "VideoToolbox", "CoreMedia"
   s.libraries = "z", "bz2", "iconv", "c++"
 
     s.preserve_paths = [
