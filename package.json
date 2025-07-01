@@ -176,5 +176,9 @@
     "@react-native-masked-view/masked-view": "0.3.2",
     "react-native-gesture-handler": "2.23.1",
     "react-native-reanimated": "3.16.7"
+  },
+  "directories": {
+    "example": "example",
+    "lib": "lib"
   }
 }
