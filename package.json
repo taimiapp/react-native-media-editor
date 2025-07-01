@@ -1,6 +1,6 @@
 {
   "name": "@taimi/react-native-media-editor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Set of tools for React Native that can assist in building assorted photo/video editors.",
   "source": "./src/index.tsx",
   "main": "./lib/module/index.js",
@@ -42,9 +42,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:taimiapp/react-native-media-editor.git"
+    "url": "https://github.com/taimiapp/react-native-media-editor"
   },
-  "author": "taimi (https://github.com/taimiapp/react-native-media-editor.git)",
+  "author": "taimi",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/taimiapp/react-native-media-editor/issues"
