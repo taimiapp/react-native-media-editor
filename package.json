@@ -42,15 +42,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.tops1.io/artieherasymov/react-native-media-editor.git"
+    "url": "git@github.com:taimiapp/react-native-media-editor.git"
   },
-  "author": "taimi <artem.gerasimov@appflame.com> (https://gitlab.tops1.io/artieherasymov/react-native-media-editor.git)",
+  "author": "taimi (https://github.com/taimiapp/react-native-media-editor.git)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ArtHerasymov/react-native-media-editor/issues"
+    "url": "https://github.com/taimiapp/react-native-media-editor/issues"
   },
-  "homepage": "https://github.com/ArtHerasymov/react-native-media-editor#readme",
+  "homepage": "https://github.com/taimiapp/react-native-media-editor#readme",
   "publishConfig": {
+    "scope": "public",
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
